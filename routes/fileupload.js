@@ -1,22 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const client = require("../config/s3Client");
 const {
-  S3Client,
   ListObjectsCommand,
   ListBucketsCommand,
+  GetObjectCommand,
 } = require("@aws-sdk/client-s3");
 
-const fs = require("fs");
-const path = require("path");
-const upload = require("../middleware/fileUpload");
+const {
+  getSignedUrl,
+  S3RequestPresigner,
+} = require("@aws-sdk/s3-request-presigner");
 
-const client = new S3Client({
-  credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY,
-    secretAccessKey: process.env.S3_SECRET_KEY,
-  },
-  region: process.env.S3_REGION,
-}); // Path to your S3 upload middleware
+const upload = require("../middleware/fileUpload");
 
 router.get("/buckets", async (req, res) => {
   try {
@@ -46,6 +42,21 @@ router.get("/files", async (req, res) => {
 router.post("/files", upload.single("file"), (req, res) => {
   console.log(req.body, req.file, "reqqqqqqqqqqqqqqqqqqqqqqqqq");
   return res.send("ok");
+});
+
+router.get("/generate-api", async (req, res) => {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET,
+      Key: "abc.jpg",
+    });
+    const url = await getSignedUrl(client, command, {
+      expiresIn: 300,
+    });
+    res.send(url);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 module.exports = router;
