@@ -1,16 +1,14 @@
 const express = require("express");
+const Image = require("../model/Image");
 const router = express.Router();
 const client = require("../config/s3Client");
 const {
   ListObjectsCommand,
   ListBucketsCommand,
-  GetObjectCommand,
+  PutObjectCommand,
 } = require("@aws-sdk/client-s3");
 
-const {
-  getSignedUrl,
-  S3RequestPresigner,
-} = require("@aws-sdk/s3-request-presigner");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const upload = require("../middleware/fileUpload");
 
@@ -38,7 +36,6 @@ router.get("/files", async (req, res) => {
 });
 
 // file upload
-
 router.post("/files", upload.single("file"), (req, res) => {
   console.log(req.body, req.file, "reqqqqqqqqqqqqqqqqqqqqqqqqq");
   return res.send("ok");
@@ -46,14 +43,36 @@ router.post("/files", upload.single("file"), (req, res) => {
 
 router.get("/generate-api", async (req, res) => {
   try {
-    const command = new GetObjectCommand({
+    const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET,
-      Key: "abc.jpg",
+      Key: req.query.fileName || "unknown",
+      ContentType: req.query.fileType || "unknown",
     });
     const url = await getSignedUrl(client, command, {
       expiresIn: 300,
     });
     res.send(url);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+router.post("/image", async (req, res) => {
+  try {
+    const image = await Image.create({
+      name: req.body.name,
+      image: process.env.S3_BUCKET_URL + "/" + req.body.name,
+    });
+    res.send(image);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+router.get("/image", async (req, res) => {
+  try {
+    const images = await Image.find();
+    res.send(images);
   } catch (error) {
     res.status(400).send(error.message);
   }

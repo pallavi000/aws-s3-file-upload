@@ -1,64 +1,52 @@
 import { useState } from "react";
-import { PhotoIcon } from "@heroicons/react/24/solid";
+import UppyComp from "./pages/UppyComp";
+import FileUpload from "./pages/FileUpload";
+import ImagesList from "./pages/ImagesList";
 import axios from "axios";
 
+axios.defaults.baseURL = "http://13.51.201.37/api";
+
 function App() {
-  const [file, setFile] = useState();
-
-  async function uploadFile(e) {
-    try {
-      e.preventDefault();
-      const response = await axios.get(
-        "http://localhost:5000/api/file-upload/generate-api"
-      );
-      const result = await axios.put(response.data, file);
-      console.log(result);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
+  const [currentComponent, setCurrentComponent] = useState("image");
   return (
-    <div className="d-flex mx-auto justify-center align-middle h-['100vh'] w-['100vh']">
-      <form className="w-1/2" onSubmit={uploadFile}>
-        <label
-          htmlFor="cover-photo"
-          className="block text-sm font-medium leading-6 text-gray-900"
+    <>
+      <h4 className="text-center text-lg font-medium mt-8">AWS image upload</h4>
+      <hr />
+      <div className="flex gap-3 justify-center m-12">
+        <button
+          type="button"
+          className="text-gray-900 bg-gradient-to-r from-lime-200 via-lime-400 to-lime-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-lime-300 dark:focus:ring-lime-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 disabled:opacity-50"
+          disabled={currentComponent === "image" ? true : false}
+          onClick={() => setCurrentComponent("image")}
         >
-          File Upload
-        </label>
-        <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-          <div className="text-center">
-            <PhotoIcon
-              className="mx-auto h-12 w-12 text-gray-300"
-              aria-hidden="true"
-            />
-            <div className="mt-4 flex text-sm leading-6 text-gray-600">
-              <label
-                htmlFor="file-upload"
-                className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-              >
-                <span>Upload a file</span>
-                <input
-                  id="file-upload"
-                  name="file-upload"
-                  type="file"
-                  className="sr-only"
-                  onChange={(e) => setFile(e.target.files[0])}
-                />
-              </label>
-              <p className="pl-1">or drag and drop</p>
-            </div>
-            <p className="text-xs leading-5 text-gray-600">
-              PNG, JPG, GIF up to 10MB
-            </p>
-          </div>
-        </div>
-        <button className=" bg-green-200 px-8 py-3 text-lg d-flex justify-center">
-          Submit
+          Image List
         </button>
-      </form>
-    </div>
+
+        <button
+          className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 disabled:opacity-50"
+          disabled={currentComponent === "basic" ? true : false}
+          onClick={() => setCurrentComponent("basic")}
+        >
+          Basic Upload
+        </button>
+        <button
+          className="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 disabled:opacity-50"
+          disabled={currentComponent === "customize" ? true : false}
+          onClick={() => setCurrentComponent("customize")}
+        >
+          Customize Upload
+        </button>
+      </div>
+      <div className=" flex justify-center items-center">
+        {currentComponent === "image" ? (
+          <ImagesList />
+        ) : currentComponent === "basic" ? (
+          <FileUpload />
+        ) : (
+          <UppyComp />
+        )}
+      </div>
+    </>
   );
 }
 
