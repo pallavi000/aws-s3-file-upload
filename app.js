@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+var MongoClient = require("mongodb").MongoClient;
+
 dotenv.config();
 
 const fileUpload = require("./routes/fileupload");
@@ -12,8 +14,10 @@ const app = express();
 // Mongo DB Connections
 mongoose
   .connect(process.env.MONGO_DB_URL, {
+    // tls: true,
+    // tlsCAFile: "./global-bundle.pem",
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    tlsAllowInvalidHostnames: true,
   })
   .then((response) => {
     console.log("MongoDB Connection Succeeded.");

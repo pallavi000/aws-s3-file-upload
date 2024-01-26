@@ -11,6 +11,7 @@ const {
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const upload = require("../middleware/fileUpload");
+const invoke = require("../utils/helper");
 
 router.get("/buckets", async (req, res) => {
   try {
@@ -64,6 +65,18 @@ router.post("/image", async (req, res) => {
       image: process.env.S3_BUCKET_URL + "/" + req.body.name,
     });
     res.send(image);
+
+    invoke("sendMail", {
+      to: "bhattaraipallavi4@gmail.com",
+      subject: "aws mail",
+      body: "successfully create image",
+    })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   } catch (error) {
     res.status(400).send(error.message);
   }

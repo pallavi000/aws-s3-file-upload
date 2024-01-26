@@ -4,7 +4,7 @@ import FileUpload from "./pages/FileUpload";
 import ImagesList from "./pages/ImagesList";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://13.51.201.37/api";
+axios.defaults.baseURL = "http://3.67.202.173/api";
 
 function App() {
   const [currentComponent, setCurrentComponent] = useState("image");
